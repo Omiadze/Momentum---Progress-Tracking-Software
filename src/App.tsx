@@ -6,7 +6,8 @@ import Layout from "./layout";
 import NotFoundPage from "./pages/404";
 import Skeleton from "./components/skeleton";
 import Home from "./pages/home";
-import CreateTask from "./pages/createTask/create-task";
+import CreateTask from "./pages/create-task/create-task";
+import InfoTask from "./pages/info-task/info-task";
 
 function App() {
   return (
@@ -34,6 +35,14 @@ function App() {
             element={
               <Suspense fallback={<Skeleton />}>
                 <CreateTask />
+              </Suspense>
+            }
+          />
+          <Route
+            path="task/:id"
+            element={
+              <Suspense fallback={<Skeleton />}>
+                <InfoTask />
               </Suspense>
             }
           />
