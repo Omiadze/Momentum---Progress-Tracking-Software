@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { modalSchema } from "./schema";
+import PhotoUploaderSvg from "../photo-uploader-svg";
 
 const Modal = () => {
   const {
@@ -72,19 +73,22 @@ const Modal = () => {
                     placeholder="სახელი"
                     className="border border-muted-foreground h-11"
                   />
-                  {errors.firstName && (
-                    <div className="text-red-500 text-sm">
-                      {errors.firstName.message}
-                    </div>
-                  )}
                 </>
               )}
             />
             <div className="text-[#6C757D]">
-              <div className="flex items-center">
+              <div
+                className={`flex items-center ${
+                  errors.firstName ? "text-red-500" : "text-green-600"
+                }`}
+              >
                 <CheckSvg /> <p>მინიმუმ 2 სიმბოლო</p>
               </div>
-              <div className="flex items-center">
+              <div
+                className={`flex items-center ${
+                  errors.firstName ? "text-red-500" : "text-green-600"
+                }`}
+              >
                 <CheckSvg /> <p>მინიმუმ 255 სიმბოლო</p>
               </div>
             </div>
@@ -101,28 +105,31 @@ const Modal = () => {
                     placeholder="გვარი"
                     className="border border-muted-foreground h-11"
                   />
-                  {errors.lastName && (
-                    <div className="text-red-500 text-sm">
-                      {errors.lastName.message}
-                    </div>
-                  )}
                 </>
               )}
             />
             <div className="text-[#6C757D]">
-              <div className="flex items-center">
+              <div
+                className={`flex items-center ${
+                  errors.lastName ? "text-red-500" : ""
+                }`}
+              >
                 <CheckSvg /> <p>მინიმუმ 2 სიმბოლო</p>
               </div>
-              <div className="flex items-center">
+              <div
+                className={`flex items-center ${
+                  errors.lastName ? "text-red-500" : ""
+                }`}
+              >
                 <CheckSvg /> <p>მინიმუმ 255 სიმბოლო</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="grid h-[145px] ">
+        <div className="grid h-[145px]">
           <label htmlFor="avatar">ავატარი*</label>
-          <div className="border-dashed border-2 p-4 flex justify-center items-center relative rounded-sm ">
+          <div className="border-dashed border-2 p-4 flex justify-center items-center relative rounded-sm">
             {avatar ? (
               <div className="relative">
                 <img
@@ -132,19 +139,27 @@ const Modal = () => {
                 />
                 <button
                   onClick={() => setAvatar(null)}
-                  className="absolute bottom-0 -right-1.5  p-1 rounded-full cursor-pointer"
+                  className="absolute bottom-0 -right-1.5 p-1 rounded-full cursor-pointer"
                 >
                   <TrashSvg />
                 </button>
               </div>
             ) : (
-              <input
-                type="file"
-                onChange={handleAvatarChange}
-                className="cursor-pointer"
-                accept="image/*" // Only accept image files
-              />
+              <label
+                htmlFor="avatar-upload"
+                className="flex flex-col justify-center items-center cursor-pointer px-4 py-2 rounded-md  transition"
+              >
+                <PhotoUploaderSvg />
+                ატვირთე ფოტო
+              </label>
             )}
+            <input
+              id="avatar-upload"
+              type="file"
+              onChange={handleAvatarChange}
+              className="hidden" // Hide default file input
+              accept="image/*" // Only accept image files
+            />
             {errors.avatar && (
               <div className="text-red-500 text-sm">
                 {errors.avatar.message}

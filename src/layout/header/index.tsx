@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import Modal from "./components/modal/modal";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
   return (
-    <div className="flex justify-between h-28 items-center pl-24 pr-24">
+    <div className="flex justify-between h-28 items-center pl-24 pr-24 ">
       <div className="flex justify-center items-center">
         <h1 className="text-primary text-3xl">Momentum</h1>
         <HourglassSvg />
@@ -22,7 +24,7 @@ const Header = () => {
           <Modal />
         </Dialog>
 
-        <Button>
+        <Button onClick={() => navigate("/create/task")}>
           <Plus />
           შექმენი ახალი დავალება
         </Button>
