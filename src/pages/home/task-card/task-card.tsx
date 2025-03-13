@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import CommentSvg from "./components/comment-svg";
+import CommentSvg from "../components/comment-svg";
 
 const TaskCard = () => {
   return (
