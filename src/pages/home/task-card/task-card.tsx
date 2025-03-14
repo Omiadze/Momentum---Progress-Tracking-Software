@@ -10,40 +10,50 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import CommentSvg from "../components/comment-svg";
+import { Task } from "@/api/momentum/index.types";
+import { setDateToConvert } from "../components/date-converter";
 
-const TaskCard = () => {
+interface TaskCardProps {
+  singleTask: Task;
+}
+const TaskCard: React.FC<TaskCardProps> = ({ singleTask }) => {
   return (
-    <Card className="w-[381px]">
+    <Card className="w-[381px] mb-10">
       <CardHeader>
         <CardTitle></CardTitle>
         <CardDescription className="flex justify-between items-center">
-          <div className="">
+          <div className="w-[184px] flex">
             <Button
               variant={"ghost"}
-              className="border-[1px] border-amber-300 mr-2"
+              className="border-[1px] p-1 border-amber-300 mr-2"
             >
-              საშუალო
+              <img src={singleTask.priority.icon} />
+              {singleTask.priority.name}
             </Button>
-            <Badge className="bg-pink-400">დიზაინი</Badge>
+            <Badge className="bg-pink-400 text-xs font rounded-full">
+              {singleTask.department.name.split(" ")[0]}
+            </Badge>
           </div>
-          <p>22 იანვ, 2022 </p>
+          <p className="text-xs">{setDateToConvert(singleTask.due_date)} </p>
         </CardDescription>
       </CardHeader>
       <CardContent className="text-left">
         <h1 className="font-medium text-black mb-2 pl-1.5">
-          Redberry-ს საიტის ლენდინგის დიზაინი{" "}
+          {singleTask.name}
         </h1>
-        <p className="font-normal text-[#343A40] text-sm pl-1.5">
-          შექმენი საიტის მთავარი გვერდი, რომელიც მოიცავს მთავარ სექციებს,
-          ნავიგაციას.
+        <p className="font-normal text-[#343A40] text-sm pl-1.5 line-clamp-2">
+          {singleTask.description}
         </p>
       </CardContent>
       <CardFooter className="flex justify-between">
         <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarImage src={singleTask.employee.avatar} alt="@shadcn" />
+          <AvatarFallback>{singleTask.employee.name[0]}</AvatarFallback>
         </Avatar>
-        <CommentSvg />
+        <div className="flex justify-center items-center gap-1">
+          <CommentSvg />
+          <p>{singleTask.total_comments}</p>
+        </div>
       </CardFooter>
     </Card>
   );
