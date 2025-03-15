@@ -23,6 +23,9 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { modalSchema } from "./schema";
 import PhotoUploaderSvg from "../photo-uploader-svg";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createEmployee, GetDepartments } from "@/api/momentum";
+import { Department } from "@/api/momentum/index.types";
 
 const Modal = () => {
   const {
@@ -32,22 +35,36 @@ const Modal = () => {
   } = useForm({
     resolver: zodResolver(modalSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
+      surname: "",
       avatar: null,
-      department: "",
+      department_id: "",
     },
   });
+
+  const { data: departments } = useQuery({
+    queryKey: ["departments"],
+    queryFn: GetDepartments,
+  });
+
   const [avatar, setAvatar] = useState<File | null>(null);
+  const { mutate: handleCreateEmployee } = useMutation({
+    mutationKey: ["create-task"],
+    mutationFn: createEmployee,
+  });
 
   const onSubmit = (data: any) => {
+    data.avatar = avatar;
     console.log("Form submitted:", data);
+    handleCreateEmployee(data);
   };
 
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log(file);
     if (file) {
       setAvatar(file);
+      console.log(avatar);
     }
   };
 
@@ -64,7 +81,7 @@ const Modal = () => {
           <div className="grid gap-2 w-96">
             <label htmlFor="firstName">სახელი*</label>
             <Controller
-              name="firstName"
+              name="name"
               control={control}
               render={({ field }) => (
                 <>
@@ -79,14 +96,14 @@ const Modal = () => {
             <div className="text-[#6C757D]">
               <div
                 className={`flex items-center ${
-                  errors.firstName ? "text-red-500" : "text-green-600"
+                  errors.name ? "text-red-500" : "text-green-600"
                 }`}
               >
                 <CheckSvg /> <p>მინიმუმ 2 სიმბოლო</p>
               </div>
               <div
                 className={`flex items-center ${
-                  errors.firstName ? "text-red-500" : "text-green-600"
+                  errors.name ? "text-red-500" : "text-green-600"
                 }`}
               >
                 <CheckSvg /> <p>მინიმუმ 255 სიმბოლო</p>
@@ -96,7 +113,7 @@ const Modal = () => {
           <div className="grid gap-2 w-96">
             <label htmlFor="lastName">გვარი*</label>
             <Controller
-              name="lastName"
+              name="surname"
               control={control}
               render={({ field }) => (
                 <>
@@ -111,14 +128,14 @@ const Modal = () => {
             <div className="text-[#6C757D]">
               <div
                 className={`flex items-center ${
-                  errors.lastName ? "text-red-500" : ""
+                  errors.surname ? "text-red-500" : ""
                 }`}
               >
                 <CheckSvg /> <p>მინიმუმ 2 სიმბოლო</p>
               </div>
               <div
                 className={`flex items-center ${
-                  errors.lastName ? "text-red-500" : ""
+                  errors.surname ? "text-red-500" : ""
                 }`}
               >
                 <CheckSvg /> <p>მინიმუმ 255 სიმბოლო</p>
@@ -170,7 +187,7 @@ const Modal = () => {
         <div className="grid gap-2 h-[80px]">
           <label htmlFor="department">დეპარტამენტი*</label>
           <Controller
-            name="department"
+            name="department_id"
             control={control}
             render={({ field }) => (
               <>
@@ -183,15 +200,20 @@ const Modal = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="IT">IT</SelectItem>
-                      <SelectItem value="HR">HR</SelectItem>
-                      <SelectItem value="Marketing">Marketing</SelectItem>
+                      {departments.map((department: Department) => (
+                        <SelectItem
+                          key={department.id}
+                          value={department.id.toString()}
+                        >
+                          {department.name}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                {errors.department && (
+                {errors.department_id && (
                   <div className="text-red-500 text-sm">
-                    {errors.department.message}
+                    {errors.department_id.message}
                   </div>
                 )}
               </>

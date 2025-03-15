@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const modalSchema = z.object({
-  firstName: z
+  name: z
     .string()
     .min(2, "First name must be at least 2 characters")
     .max(255, "First name must be at most 255 characters")
@@ -9,7 +9,7 @@ export const modalSchema = z.object({
       /^[a-zA-Zა-ჰ]+$/,
       "First name can only contain Latin and Georgian characters"
     ),
-  lastName: z
+  surname: z
     .string()
     .min(2, "Last name must be at least 2 characters")
     .max(255, "Last name must be at most 255 characters")
@@ -27,5 +27,5 @@ export const modalSchema = z.object({
       (file) => file === null || file.type.startsWith("image/"),
       "Avatar must be an image file"
     ),
-  department: z.string().min(1, "Department is required"),
+  department_id: z.string().min(1, "Department is required"),
 });

@@ -55,3 +55,17 @@ export type CreateTaskResponse = {
 };
 
 export type TasksResponse = Task[];
+
+export type CreateEmployeeData = {
+  name: string;
+  surname: string;
+  avatar: File | null;
+  department_id: number;
+};
+
+export type CreateEmployeeResponse = {
+  id: number;
+  name: string;
+  surname: string;
+  avatar: string;
+};

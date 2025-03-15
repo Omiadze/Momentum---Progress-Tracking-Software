@@ -2,6 +2,8 @@ import axios from "axios";
 import { httpClient } from "..";
 import { MOMENTUM_ENDPOINTS } from "./index.enum";
 import {
+  CreateEmployeeData,
+  CreateEmployeeResponse,
   CreateTaskData,
   CreateTaskResponse,
   TasksResponse,
@@ -76,7 +78,33 @@ export const createTask = async (
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 401) {
-        alert("Your Email or password is incorrect");
+        alert("could not Create Task");
+      }
+      throw new Error(error.response?.data?.message || "Failed to create task");
+    }
+    throw new Error("An unexpected error occurred");
+  }
+};
+
+export const createEmployee = async (
+  data: CreateEmployeeData
+): Promise<CreateEmployeeResponse> => {
+  try {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("surname", data.surname);
+    if (data.avatar) formData.append("avatar", data.avatar);
+    formData.append("department_id", data.department_id.toString());
+
+    const result = await httpClient.post<CreateEmployeeResponse>(
+      MOMENTUM_ENDPOINTS.EMPLOYEES,
+      formData
+    );
+    return result.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        alert("Could not create employee");
       }
       throw new Error(error.response?.data?.message || "Failed to create task");
     }
