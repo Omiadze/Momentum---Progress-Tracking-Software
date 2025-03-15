@@ -1,7 +1,11 @@
 import axios from "axios";
 import { httpClient } from "..";
 import { MOMENTUM_ENDPOINTS } from "./index.enum";
-import { TasksResponse } from "./index.types";
+import {
+  CreateTaskData,
+  CreateTaskResponse,
+  TasksResponse,
+} from "./index.types";
 
 export const GetStatuses = async () => {
   try {
@@ -57,5 +61,25 @@ export const getAllTasks = async (): Promise<TasksResponse> => {
       throw new Error(error.response?.data?.message || "Failed to Get Tasks");
     }
     throw error;
+  }
+};
+
+export const createTask = async (
+  data: CreateTaskData
+): Promise<CreateTaskResponse> => {
+  try {
+    const result = await httpClient.post<CreateTaskResponse>(
+      MOMENTUM_ENDPOINTS.TASKS,
+      data
+    );
+    return result.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        alert("Your Email or password is incorrect");
+      }
+      throw new Error(error.response?.data?.message || "Failed to create task");
+    }
+    throw new Error("An unexpected error occurred");
   }
 };

@@ -207,7 +207,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="flex h-[1042px] justify-between flex-wrap">
+        <div className="flex h-[1200px] justify-between flex-wrap overflow-auto ">
           <div>
             {statuses && (
               <Button className="w-[381px] h-[54px] bg-[#F7BC30] mb-8">

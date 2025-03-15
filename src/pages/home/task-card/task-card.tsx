@@ -18,7 +18,7 @@ interface TaskCardProps {
 }
 const TaskCard: React.FC<TaskCardProps> = ({ singleTask }) => {
   return (
-    <Card className="w-[381px] mb-10">
+    <Card className="w-[381px] mb-4">
       <CardHeader>
         <CardTitle></CardTitle>
         <CardDescription className="flex justify-between items-center">
