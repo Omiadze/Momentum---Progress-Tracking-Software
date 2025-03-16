@@ -43,7 +43,7 @@ export type CreateTaskData = {
   priority_id: string;
 };
 
-export type CreateTaskResponse = {
+export type TaskResponse = {
   id: number;
   name: string;
   description: string;
@@ -69,3 +69,15 @@ export type CreateEmployeeResponse = {
   surname: string;
   avatar: string;
 };
+
+export type Comment = {
+  id: number;
+  text: string;
+  task_id: number;
+  parent_id: number | null;
+  author_avatar: string;
+  author_nickname: string;
+  sub_comments?: Comment[]; // რექურსიული სტრუქტურისთვის
+};
+
+export type CommentsResponse = Comment[];

@@ -12,13 +12,20 @@ import {
 import CommentSvg from "../components/comment-svg";
 import { Task } from "@/api/momentum/index.types";
 import { setDateToConvert } from "../components/date-converter";
+import { useNavigate } from "react-router-dom";
 
 interface TaskCardProps {
   singleTask: Task;
 }
 const TaskCard: React.FC<TaskCardProps> = ({ singleTask }) => {
+  const navigate = useNavigate();
   return (
-    <Card className="w-[381px] mb-4">
+    <Card
+      className="w-[381px] mb-4"
+      onClick={() =>
+        navigate(`/task/${singleTask.id}`, { state: { singleTask } })
+      }
+    >
       <CardHeader>
         <CardTitle></CardTitle>
         <CardDescription className="flex justify-between items-center">
