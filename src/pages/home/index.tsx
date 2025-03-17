@@ -20,8 +20,16 @@ import {
   GetStatuses,
 } from "@/api/momentum";
 import { Department, Employee, Priority } from "@/api/momentum/index.types";
+import { Avatar } from "@radix-ui/react-avatar";
+import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Home = () => {
+  const cardBorderColors = {
+    დასაწყები: "#F7BC30",
+    პროგრესში: "#FB5607",
+    "მზად ტესტირებისთვის": "#FF006E",
+    დასრულებული: "#3A86FF",
+  };
   const { data: departments } = useQuery({
     queryKey: ["departments"],
     queryFn: GetDepartments,
@@ -37,17 +45,31 @@ const Home = () => {
     queryFn: GetEmployees,
   });
 
+  // Temporary state for selections before applying filters
+  const [tempDepartments, setTempDepartments] = useState<string[]>([]);
+  const [tempPriorities, setTempPriorities] = useState<string[]>([]);
+  const [tempEmployee, setTempEmployee] = useState<string | null>(null);
+
+  // Applied filter states (used for filtering the tasks)
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedPriorities, setSelectedPriorities] = useState<string[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
 
-  const toggleSelection = (list: any, setList: any, item: any) => {
+  const applyFilters = () => {
+    setSelectedDepartments(tempDepartments);
+    setSelectedPriorities(tempPriorities);
+    setSelectedEmployee(tempEmployee);
+  };
+
+  // Toggle selection function for temp states
+  const toggleSelection = (setList: any, item: any) => {
     setList((prev: any) =>
       prev.includes(item)
         ? prev.filter((i: any) => i !== item)
         : [...prev, item]
     );
   };
+
   const clearFilter = () => {
     setSelectedDepartments([]);
     setSelectedPriorities([]);
@@ -64,14 +86,17 @@ const Home = () => {
     queryFn: getAllTasks,
   });
 
+  // Memoized filtered tasks
   const filteredTasks = useMemo(() => {
     return Tasks?.filter((task) => {
       const matchesDepartment = selectedDepartments.length
         ? selectedDepartments.includes(task.department.name)
         : true;
+
       const matchesPriority = selectedPriorities.length
         ? selectedPriorities.includes(task.priority.name)
         : true;
+
       const matchesEmployee = selectedEmployee
         ? task.employee.name === selectedEmployee
         : true;
@@ -79,6 +104,7 @@ const Home = () => {
       return matchesDepartment && matchesPriority && matchesEmployee;
     });
   }, [Tasks, selectedDepartments, selectedPriorities, selectedEmployee]);
+
   return (
     <div className=" pl-24 pr-24">
       <div>
@@ -96,23 +122,30 @@ const Home = () => {
                     <DownArrowSvg />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="ml-24 w-[688px]">
+                <PopoverContent className="ml-24 w-[688px] border-[0.5px] border-primary">
                   {departments &&
                     departments?.map((dep: Department) => (
-                      <div key={dep.id} className="flex items-center space-x-2">
+                      <div
+                        key={dep.id}
+                        className="flex items-center space-x-4 mb-4"
+                      >
                         <Checkbox
-                          checked={selectedDepartments.includes(dep.name)}
+                          checked={tempDepartments.includes(dep.name)}
                           onCheckedChange={() =>
-                            toggleSelection(
-                              selectedDepartments,
-                              setSelectedDepartments,
-                              dep.name
-                            )
+                            toggleSelection(setTempDepartments, dep.name)
                           }
                         />
                         <span>{dep.name}</span>
                       </div>
                     ))}
+                  <div className="text-right">
+                    <Button
+                      onClick={applyFilters}
+                      className="rounded-4xl pl-10 pr-10"
+                    >
+                      არჩევა
+                    </Button>
+                  </div>
                 </PopoverContent>
               </Popover>
 
@@ -124,7 +157,7 @@ const Home = () => {
                     <DownArrowSvg />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className=" p-4 ml-24 w-[688px]">
+                <PopoverContent className=" p-4 ml-24 w-[688px] border-[0.5px] border-primary">
                   {priorities &&
                     priorities?.map((priority: Priority) => (
                       <div
@@ -132,18 +165,22 @@ const Home = () => {
                         className="flex items-center space-x-2"
                       >
                         <Checkbox
-                          checked={selectedPriorities.includes(priority.name)}
+                          checked={tempPriorities.includes(priority.name)}
                           onCheckedChange={() =>
-                            toggleSelection(
-                              selectedPriorities,
-                              setSelectedPriorities,
-                              priority.name
-                            )
+                            toggleSelection(setTempPriorities, priority.name)
                           }
                         />
                         <span>{priority.name}</span>
                       </div>
                     ))}
+                  <div className="text-right">
+                    <Button
+                      onClick={applyFilters}
+                      className="rounded-4xl pl-10 pr-10"
+                    >
+                      არჩევა
+                    </Button>
+                  </div>
                 </PopoverContent>
               </Popover>
 
@@ -155,24 +192,42 @@ const Home = () => {
                     <DownArrowSvg />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="ml-24 w-[688px] p-4">
+                <PopoverContent className="ml-24 w-[688px] p-4 border-[0.5px] border-primary">
                   {employees &&
                     employees?.map((emp: Employee) => (
                       <div
                         key={emp.id}
                         className={cn(
-                          "p-2 rounded cursor-pointer hover:bg-gray-200",
-                          selectedEmployee === emp.name && "bg-gray-300"
+                          "flex items-center gap-5 p-2 w-full rounded cursor-pointer hover:bg-gray-200",
+                          tempEmployee === emp.name && "bg-gray-300"
                         )}
-                        onClick={() => setSelectedEmployee(emp.name)}
+                        onClick={() => setTempEmployee(emp.name)}
                       >
-                        {emp.name}
+                        <Avatar className="w-[31px] h-[31px] rounded-full">
+                          <AvatarImage
+                            className="rounded-full"
+                            src={emp.avatar}
+                            alt="@shadcn"
+                          />
+                          <AvatarFallback>{emp.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <p>
+                          {emp.name} {emp.surname}
+                        </p>
                       </div>
                     ))}
+                  <div className="text-right">
+                    <Button
+                      onClick={applyFilters}
+                      className="rounded-4xl pl-10 pr-10"
+                    >
+                      არჩევა
+                    </Button>
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="text-left flex gap-1.5 ">
+            <div className="text-left flex gap-1.5 flex-wrap">
               {selectedDepartments?.map((department) => (
                 <Badge
                   key={department}
@@ -207,7 +262,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="flex h-[1200px] justify-between flex-wrap overflow-auto ">
+        <div className="flex h-[1200px] justify-between flex-wrap overflow-y-scroll scrollbar   ">
           <div>
             {statuses && (
               <Button className="w-[381px] h-[54px] bg-[#F7BC30] mb-8">
@@ -219,7 +274,11 @@ const Home = () => {
               {filteredTasks?.map(
                 (task) =>
                   task.status.name == statuses[0].name && (
-                    <TaskCard key={task.id} singleTask={task} />
+                    <TaskCard
+                      key={task.id}
+                      singleTask={task}
+                      borderColor={cardBorderColors.დასაწყები}
+                    />
                   )
               )}
             </div>
@@ -235,7 +294,11 @@ const Home = () => {
               {filteredTasks?.map(
                 (task) =>
                   task.status.name == statuses[1].name && (
-                    <TaskCard key={task.id} singleTask={task} />
+                    <TaskCard
+                      key={task.id}
+                      singleTask={task}
+                      borderColor={cardBorderColors.პროგრესში}
+                    />
                   )
               )}
             </div>
@@ -251,7 +314,11 @@ const Home = () => {
               {filteredTasks?.map(
                 (task) =>
                   task.status.name == statuses[2].name && (
-                    <TaskCard key={task.id} singleTask={task} />
+                    <TaskCard
+                      key={task.id}
+                      singleTask={task}
+                      borderColor={cardBorderColors["მზად ტესტირებისთვის"]}
+                    />
                   )
               )}
             </div>
@@ -267,7 +334,11 @@ const Home = () => {
               {filteredTasks?.map(
                 (task) =>
                   task.status.name == statuses[3].name && (
-                    <TaskCard key={task.id} singleTask={task} />
+                    <TaskCard
+                      key={task.id}
+                      singleTask={task}
+                      borderColor={cardBorderColors.დასრულებული}
+                    />
                   )
               )}
             </div>
