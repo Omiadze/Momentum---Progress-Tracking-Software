@@ -21,14 +21,20 @@ const Header = () => {
       <div className=" flex justify-center gap-2.5 items-center ">
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant={"ghost"} className="border-2 border-primary mr-4">
+            <Button
+              variant={"ghost"}
+              className="border-2 border-primary mr-4 cursor-pointer"
+            >
               თანამშრომლის შექმნა
             </Button>
           </DialogTrigger>
           <Modal />
         </Dialog>
 
-        <Button onClick={() => navigate("/create/task")}>
+        <Button
+          onClick={() => navigate("/create/task")}
+          className="cursor-pointer"
+        >
           <Plus />
           შექმენი ახალი დავალება
         </Button>

@@ -262,7 +262,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="flex h-[1200px] justify-between flex-wrap overflow-y-scroll scrollbar   ">
+        <div className="flex h-[1200px] justify-between flex-wrap overflow-auto scrollbar   ">
           <div>
             {statuses && (
               <Button className="w-[381px] h-[54px] bg-[#F7BC30] mb-8">

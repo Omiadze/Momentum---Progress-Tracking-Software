@@ -30,6 +30,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { Status } from "@/api/momentum/index.types";
 import { setDateToConvert } from "../home/components/date-converter";
 import { queryClient } from "@/main";
+import { toast } from "sonner";
 
 const InfoTask = () => {
   const { id } = useParams();
@@ -112,7 +113,12 @@ const InfoTask = () => {
     const commentData = { text: values.message };
     console.log({ ...commentData, commentId });
     // Pass both id and text to handleCreateComment
-    handleCreateComment({ ...commentData, commentId });
+    if (commentData.text === "") {
+      toast("Event has been created");
+    } else {
+      handleCreateComment({ ...commentData, commentId });
+    }
+
     reset();
   };
 
@@ -121,7 +127,12 @@ const InfoTask = () => {
     const replyData = { text: values.replyMessage };
     console.log({ ...replyData, commentId });
 
-    handleCreateComment({ ...replyData, commentId });
+    if (replyData.text === "") {
+      toast("Event has been created");
+    } else {
+      handleCreateComment({ ...replyData, commentId });
+    }
+
     replyReset();
     setShowReplyInput(null);
   };
@@ -134,10 +145,16 @@ const InfoTask = () => {
     updateTaskStatus({ taskId: id, statusId });
   };
 
+  const totalCommentsAndSubcomments = comments
+    ? comments.reduce(
+        (acc, comment) => acc + 1 + (comment?.sub_comments?.length || 0),
+        0
+      )
+    : 0;
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error</p>;
   return (
-    <div className="flex justify-between pl-24 pr-24 h-full pt-20">
+    <div className="flex justify-between pl-24 pr-24 h-screnn pt-20">
       <div className="w-1/2 text-left">
         <div className="mb-5 flex">
           <Button
@@ -227,11 +244,12 @@ const InfoTask = () => {
                   placeholder={"დაწერე კომენტარი"}
                   onChange={onChange}
                   value={value}
-                  className="border-[0.5px] border-[#ADB5BD] h-[135px] bg-white"
+                  className="border-[0.5px] border-[#ADB5BD] h-[135px] bg-white pb-16"
                 />
 
                 <Button
                   onClick={handleSubmit((value) => onSubmit(null, value))}
+                  disabled={!value.trim()}
                   className="absolute rounded-3xl right-5 bottom-4"
                 >
                   დააკომენტარე
@@ -244,7 +262,7 @@ const InfoTask = () => {
           <div className="flex gap-2">
             <h1 className="text-left mb-9 text-xl font-medium">კომენტარები</h1>
             <Button className="w-3 h-6 rounded-full">
-              {singleTask?.total_comments}
+              {totalCommentsAndSubcomments}
             </Button>
           </div>
           {comments?.map((comment) => (
@@ -286,13 +304,14 @@ const InfoTask = () => {
                               placeholder={"დაწერე კომენტარი"}
                               onChange={onChange}
                               value={value}
-                              className="border-[0.5px] border-[#ADB5BD] h-[135px] bg-white"
+                              className="border-[0.5px] border-[#ADB5BD] h-[135px] bg-white pb-16"
                             />
 
                             <Button
                               onClick={handleReplySubmit((value) =>
                                 onReplySubmit(comment.id.toString(), value)
                               )}
+                              disabled={!value.trim()}
                               className="absolute rounded-3xl right-5 bottom-4"
                             >
                               დააკომენტარე

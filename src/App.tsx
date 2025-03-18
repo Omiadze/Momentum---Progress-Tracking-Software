@@ -8,10 +8,12 @@ import Skeleton from "./components/skeleton";
 import Home from "./pages/home";
 import CreateTask from "./pages/create-task/create-task";
 import InfoTask from "./pages/info-task/info-task";
+import { Toaster } from "@/components/ui/sonner";
 
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <Toaster />
       <Routes>
         <Route path="/" element={<Navigate to="/home" />} />
         <Route
