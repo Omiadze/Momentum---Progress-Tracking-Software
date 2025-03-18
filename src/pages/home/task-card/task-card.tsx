@@ -53,7 +53,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ singleTask, borderColor }) => {
 
   return (
     <Card
-      className="w-[381px] mb-4 cursor-pointer"
+      className="w-[381px] mb-4 cursor-pointer dark:bg-primary"
       style={{ borderColor, borderWidth: "1px", borderStyle: "solid" }}
       onClick={() =>
         navigate(`/task/${singleTask.id}`, { state: { singleTask } })

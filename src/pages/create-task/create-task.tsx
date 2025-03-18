@@ -101,7 +101,7 @@ const CreateTask = () => {
       </h1>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-4 max-w-[1684px] bg-[#FBF9FFA6] border-[0.3px] max-h-[958px] m-auto pb-40"
+        className="space-y-4 max-w-[1684px] bg-[#FBF9FFA6] dark:bg-purple-100 border-[0.3px] max-h-[958px] m-auto pb-40"
       >
         <div className="flex p-10">
           <div className="max-w-[550px] mr-52">

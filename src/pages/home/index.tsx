@@ -113,7 +113,7 @@ const Home = () => {
             დავალებების გვერდი
           </h1>
           <div className="mb-10">
-            <div className="flex border-[0.5px] rounded-sm justify-between mb-2 w-[688px]">
+            <div className="flex border-[0.5px] rounded-sm justify-between mb-2 w-[688px] dark:bg-primary">
               {/* დეპარტამენტი Multiselect */}
               <Popover>
                 <PopoverTrigger asChild>
@@ -254,7 +254,11 @@ const Home = () => {
               {(selectedDepartments.length > 0 ||
                 selectedPriorities.length > 0 ||
                 selectedEmployee) && (
-                <Button onClick={clearFilter} variant={"link"} className="">
+                <Button
+                  onClick={clearFilter}
+                  variant={"link"}
+                  className="dark:bg-primary"
+                >
                   გასუფთავება
                 </Button>
               )}
