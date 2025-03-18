@@ -27,5 +27,5 @@ export const modalSchema = z.object({
       (file) => file === null || file.type.startsWith("image/"),
       "Avatar must be an image file"
     ),
-  department_id: z.string().min(1, "Department is required"),
+  department_id: z.string().min(1, "სავალდებულოა"),
 });

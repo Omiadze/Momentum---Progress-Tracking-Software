@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -31,7 +32,8 @@ const Modal = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitted },
+    watch,
   } = useForm({
     resolver: zodResolver(modalSchema),
     defaultValues: {
@@ -40,7 +42,10 @@ const Modal = () => {
       avatar: null,
       department_id: "",
     },
+    mode: "onChange",
   });
+  const nameValue = watch("name");
+  const surnameValue = watch("surname");
 
   const { data: departments } = useQuery({
     queryKey: ["departments"],
@@ -51,6 +56,9 @@ const Modal = () => {
   const { mutate: handleCreateEmployee } = useMutation({
     mutationKey: ["create-task"],
     mutationFn: createEmployee,
+    onSuccess: () => {
+      window.location.reload();
+    },
   });
 
   const onSubmit = (data: any) => {
@@ -67,6 +75,16 @@ const Modal = () => {
       console.log(avatar);
     }
   };
+
+  // const getMessageStyle = (fieldName: string) => {
+  //   if (errors[fieldName]) {
+  //     return "text-red-500"; // Error messages
+  //   } else if (touchedFields[fieldName]) {
+  //     return "text-green-600"; // Success messages
+  //   } else {
+  //     return "text-[#6C757D]"; // Default gray for untouched fields
+  //   }
+  // };
 
   return (
     <div>
@@ -96,14 +114,24 @@ const Modal = () => {
             <div className="text-[#6C757D]">
               <div
                 className={`flex items-center ${
-                  errors.name ? "text-red-500" : "text-green-600"
+                  nameValue.length === 0 && !isSubmitted
+                    ? "text-gray-500" // empty field
+                    : errors.name?.message ===
+                        "First name must be at least 2 characters"
+                      ? "text-red-500"
+                      : "text-green-500"
                 }`}
               >
                 <CheckSvg /> <p>მინიმუმ 2 სიმბოლო</p>
               </div>
               <div
                 className={`flex items-center ${
-                  errors.name ? "text-red-500" : "text-green-600"
+                  nameValue.length === 0 && !isSubmitted
+                    ? "text-gray-500"
+                    : errors.name?.message ===
+                        "First name must be at most 255 characters"
+                      ? "text-red-500"
+                      : "text-green-500"
                 }`}
               >
                 <CheckSvg /> <p>მინიმუმ 255 სიმბოლო</p>
@@ -128,17 +156,27 @@ const Modal = () => {
             <div className="text-[#6C757D]">
               <div
                 className={`flex items-center ${
-                  errors.surname ? "text-red-500" : ""
+                  surnameValue.length === 0 && !isSubmitted
+                    ? "text-gray-500" // empty field
+                    : errors.surname?.message ===
+                        "Last name must be at least 2 characters"
+                      ? "text-red-500"
+                      : "text-green-500"
                 }`}
               >
-                <CheckSvg /> <p>მინიმუმ 2 სიმბოლო</p>
+                <CheckSvg /> <p>მაქსიმუმ 2 სიმბოლო</p>
               </div>
               <div
                 className={`flex items-center ${
-                  errors.surname ? "text-red-500" : ""
+                  surnameValue.length === 0 && !isSubmitted
+                    ? "text-gray-500"
+                    : errors.surname?.message ===
+                        "Last name must be at most 255 characters"
+                      ? "text-red-500"
+                      : "text-green-500"
                 }`}
               >
-                <CheckSvg /> <p>მინიმუმ 255 სიმბოლო</p>
+                <CheckSvg /> <p>მაქსიმუმ 255 სიმბოლო</p>
               </div>
             </div>
           </div>
@@ -221,10 +259,18 @@ const Modal = () => {
           />
         </div>
         <DialogFooter>
-          <Button variant={"ghost"} className="border-2 border-primary">
-            გაუქმება
+          <DialogClose asChild>
+            <Button
+              variant={"ghost"}
+              className="border-2 border-primary cursor-pointer"
+            >
+              გაუქმება
+            </Button>
+          </DialogClose>
+
+          <Button className="cursor-pointer" onClick={handleSubmit(onSubmit)}>
+            დაამატე თანამშრომელი
           </Button>
-          <Button onClick={handleSubmit(onSubmit)}>დაამატე თანამშრომელი</Button>
         </DialogFooter>
       </DialogContent>
     </div>
