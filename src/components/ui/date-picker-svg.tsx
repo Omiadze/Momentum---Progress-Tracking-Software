@@ -1,7 +1,7 @@
 const DatePickerSvg = () => {
   return (
     <svg
-      className="absolute bottom-2.5 left-2"
+      className=""
       width="16"
       height="17"
       viewBox="0 0 16 17"

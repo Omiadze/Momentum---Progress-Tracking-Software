@@ -33,13 +33,22 @@ import { taskSchema } from "./schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import DatePickerSvg from "@/components/ui/date-picker-svg";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { AvatarFallback } from "@radix-ui/react-avatar";
 
 const CreateTask = () => {
   const {
     control,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitted },
   } = useForm({
     resolver: zodResolver(taskSchema),
     defaultValues: {
@@ -51,10 +60,13 @@ const CreateTask = () => {
       employee_id: "",
       due_date: new Date().toISOString().split("T")[0],
     },
+    mode: "onChange",
   });
 
   //   const [departments, setDepartments] = useState([]);
   //   const [employees, setEmployees] = useState([]);
+  const nameValue = watch("name");
+  const descriptionValue = watch("description");
   const selectedDepartment = watch("department");
   const navigate = useNavigate();
 
@@ -111,18 +123,18 @@ const CreateTask = () => {
                 name="name"
                 control={control}
                 render={({ field }) => {
-                  const isEmpty = !field.value || field.value.trim() === ""; // Check if the input is empty
                   return (
                     <>
                       <Input className="bg-white" {...field} />
                       <div className="text-[#6C757D] text-xs">
                         <div
                           className={`flex items-center ${
-                            isEmpty
-                              ? "text-gray-400" // Show gray if empty
-                              : errors.name
+                            nameValue.length === 0 && !isSubmitted
+                              ? "text-gray-500" // empty field
+                              : errors.name?.message ===
+                                  "Title must be at least 3 characters"
                                 ? "text-red-500"
-                                : "text-green-600"
+                                : "text-green-500"
                           }`}
                         >
                           <CheckSvg />
@@ -130,20 +142,18 @@ const CreateTask = () => {
                         </div>
                         <div
                           className={`flex items-center ${
-                            isEmpty
-                              ? "text-gray-400" // Show gray if empty
-                              : errors.name
+                            nameValue.length === 0 && !isSubmitted
+                              ? "text-gray-500" // empty field
+                              : errors.name?.message ===
+                                  "Title must be at most 255 characters"
                                 ? "text-red-500"
-                                : "text-green-600"
+                                : "text-green-500"
                           }`}
                         >
                           <CheckSvg />
                           <p>მაქსიმუმ 255 სიმბოლო</p>
                         </div>
                       </div>
-                      {errors.name && (
-                        <p className="text-red-500">{errors.name.message}</p>
-                      )}
                     </>
                   );
                 }}
@@ -155,40 +165,35 @@ const CreateTask = () => {
                 name="description"
                 control={control}
                 render={({ field }) => {
-                  const isEmpty = !field.value || field.value.trim() === ""; // Check if empty
-
                   return (
                     <>
                       <Textarea {...field} className="h-32 bg-white mb-1" />
                       <div className="text-[#6C757D] text-xs">
                         <div
                           className={`flex items-center ${
-                            isEmpty
-                              ? "text-gray-400" // Gray if empty
-                              : errors.description
+                            descriptionValue?.length === 0 && !isSubmitted
+                              ? "text-gray-500" // empty field
+                              : errors.name?.message ===
+                                  "Description must be at most 255 characters"
                                 ? "text-red-500"
-                                : "text-green-600"
+                                : "text-green-500"
                           }`}
                         >
                           <CheckSvg /> <p>მინიმუმ 2 სიმბოლო</p>
                         </div>
                         <div
                           className={`flex items-center ${
-                            isEmpty
-                              ? "text-gray-400"
-                              : errors.description
+                            descriptionValue?.length === 0 && !isSubmitted
+                              ? "text-gray-500" // empty field
+                              : errors.name?.message ===
+                                  "Description must be at least 4 words if provided"
                                 ? "text-red-500"
-                                : "text-green-600"
+                                : "text-green-500"
                           }`}
                         >
                           <CheckSvg /> <p>მინიმუმ 255 სიმბოლო</p>
                         </div>
                       </div>
-                      {errors.description && (
-                        <p className="text-red-500">
-                          {errors.description.message}
-                        </p>
-                      )}
                     </>
                   );
                 }}
@@ -236,7 +241,9 @@ const CreateTask = () => {
                     </Select>
                   )}
                 />
-                {errors.priority_id?.message}
+                <p className="text-red-500 text-left">
+                  {errors.priority_id?.message}
+                </p>
               </div>
 
               <div className="">
@@ -274,7 +281,9 @@ const CreateTask = () => {
                     </Select>
                   )}
                 />
-                {errors.status_id?.message}
+                <p className="text-red-500 text-left">
+                  {errors.status_id?.message}
+                </p>
               </div>
             </div>
           </div>
@@ -308,7 +317,9 @@ const CreateTask = () => {
                   </Select>
                 )}
               />
-              {errors.department?.message}
+              <p className="text-red-500 text-left">
+                {errors.department?.message}
+              </p>
             </div>
 
             <div
@@ -333,7 +344,7 @@ const CreateTask = () => {
                       <SelectGroup>
                         <Dialog>
                           <DialogTrigger asChild>
-                            <div className="flex  items-center gap-1 mb-1 p-1">
+                            <div className="flex  items-center gap-1 mb-1 p-1 cursor-pointer">
                               <PlusSvg />
                               <p className="text-primary">
                                 დაამატე თანამშრომელი
@@ -350,6 +361,13 @@ const CreateTask = () => {
                                 key={employee.id}
                                 value={employee.id.toString()}
                               >
+                                <Avatar>
+                                  <AvatarImage
+                                    src={employee.avatar}
+                                    alt={employee.name}
+                                  />
+                                  <AvatarFallback></AvatarFallback>
+                                </Avatar>
                                 {employee.name}
                               </SelectItem>
                             ) : (
@@ -361,32 +379,63 @@ const CreateTask = () => {
                   </Select>
                 )}
               />
-              {errors.employee_id?.message}
+              <p className="text-red-500 text-left">
+                {errors.employee_id?.message}
+              </p>
             </div>
 
-            <div className="relative">
+            <div className=" flex flex-col">
               <Label className="mb-2">დედლაინი*</Label>
               <Controller
                 name="due_date"
                 control={control}
-                render={({ field }) => (
-                  <>
-                    <Input
-                      className="bg-white text-[#ADB5BD] w-[318px] pl-7 "
-                      type="date"
-                      {...field}
-                      min={new Date().toISOString().split("T")[0]}
-                    />
-                    <DatePickerSvg />
-                  </>
-                )}
+                render={({ field }) => {
+                  const selectedDate = field.value
+                    ? new Date(field.value)
+                    : undefined;
+
+                  return (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={`w-[318px] justify-start text-left pl-7 ${
+                            !selectedDate && "text-muted-foreground"
+                          }`}
+                        >
+                          <DatePickerSvg />
+                          {selectedDate
+                            ? format(selectedDate, "yyyy-MM-dd")
+                            : "აირჩიე თარიღი"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(date) =>
+                            field.onChange(
+                              date ? format(date, "yyyy-MM-dd") : ""
+                            )
+                          }
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  );
+                }}
               />
-              {errors.due_date?.message}
+              <p className="text-red-500 text-left">
+                {errors.due_date?.message}
+              </p>
             </div>
           </div>
         </div>
-        <div className="text-right pr-[520px]">
-          <Button className="text-right">დავალების შექმნა</Button>
+        <div className="text-right pr-[520px] ">
+          <Button className="text-right cursor-pointer">
+            დავალების შექმნა
+          </Button>
         </div>
       </form>
     </div>
