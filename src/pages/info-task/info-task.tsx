@@ -18,7 +18,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 
 import ReplySvg from "./components/reply-svg";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   changeTaskStatusId,
   createComment,
@@ -31,15 +31,13 @@ import { Status } from "@/api/momentum/index.types";
 import { setDateToConvert } from "../home/components/date-converter";
 import { queryClient } from "@/main";
 import { toast } from "sonner";
+import Loading from "../loading";
 
 const InfoTask = () => {
   const { id } = useParams();
-  const location = useLocation();
-  const { singleTask } = location.state || {};
 
   const [showReplyInput, setShowReplyInput] = useState<string | null>(null);
-  console.log(singleTask);
-  console.log(id);
+
   const {
     data: task,
     isLoading,
@@ -50,10 +48,6 @@ const InfoTask = () => {
     queryFn: () => getSingleTask(id as string),
     enabled: !!id,
   });
-
-  if (task) {
-    console.log(task);
-  }
 
   const { data: comments, refetch } = useQuery({
     queryKey: ["comments", id],
@@ -76,9 +70,6 @@ const InfoTask = () => {
     },
   });
 
-  // const [selectedCondition, setSelectedCondition] = useState(
-  //   "მზად ტესტირებისთვის"
-  // );
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       message: "",
@@ -99,7 +90,6 @@ const InfoTask = () => {
       changeTaskStatusId(taskId, statusId),
     onSuccess: () => {
       refetchTask();
-
       // Optionally, refetch relevant queries to get the updated task list
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
@@ -109,9 +99,8 @@ const InfoTask = () => {
   });
 
   const onSubmit = (commentId: string | null, values: any) => {
-    console.log(values);
     const commentData = { text: values.message };
-    console.log({ ...commentData, commentId });
+
     // Pass both id and text to handleCreateComment
     if (commentData.text === "") {
       toast("Event has been created");
@@ -123,23 +112,18 @@ const InfoTask = () => {
   };
 
   const onReplySubmit = (commentId: string, values: any) => {
-    console.log(values);
     const replyData = { text: values.replyMessage };
-    console.log({ ...replyData, commentId });
 
     if (replyData.text === "") {
       toast("Event has been created");
     } else {
       handleCreateComment({ ...replyData, commentId });
     }
-
     replyReset();
     setShowReplyInput(null);
   };
 
   const handleStatusBtn = (statusId: string) => {
-    // setSelectedCondition(statusId);
-
     if (!id) return; // Ensure task ID is available
 
     updateTaskStatus({ taskId: id, statusId });
@@ -151,7 +135,8 @@ const InfoTask = () => {
         0
       )
     : 0;
-  if (isLoading) return <p>Loading...</p>;
+
+  if (isLoading) return <Loading />;
   if (isError) return <p>Error</p>;
   return (
     <div className="flex justify-between pl-24 pr-24 h-screnn pt-20">
@@ -174,7 +159,7 @@ const InfoTask = () => {
         </div>
         <div>
           <h1 className="mb-9 text-2xl">დავალების დეტალები</h1>
-          <div className="w-[500px] text-[#474747]">
+          <div className="w-[500px] text-[#474747] dark:text-white">
             <div className="flex items-center mb-9">
               <div className="flex w-[260px] gap-3">
                 <PieChartSvg />
@@ -182,21 +167,21 @@ const InfoTask = () => {
               </div>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="link">
+                  <Button variant="link" className="dark:text-white">
                     {task?.status.name}
                     <DownArrowSvg />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="ml-24 w-[688px] p-4">
+                <PopoverContent className="ml-24 w-[688px] p-4 ">
                   {statuses?.map((status: Status) => (
                     <div
                       key={status.id}
                       className={cn(
-                        "p-2 rounded cursor-pointer hover:bg-gray-200"
+                        "p-2 rounded cursor-pointer hover:bg-gray-200 dark:hover:bg-black"
                       )}
                       onClick={() => handleStatusBtn(status.id.toString())}
                     >
-                      {status.name}
+                      <p className="">{status.name}</p>
                     </div>
                   ))}
                 </PopoverContent>
@@ -207,16 +192,19 @@ const InfoTask = () => {
                 <UserSvg />
                 <p>თანამშრომელი</p>
               </div>
-              <div className="flex gap-1 justify-center items-center">
+              <div className="flex gap-1 justify-center items-center ">
                 <Avatar>
-                  <AvatarImage src={task?.employee.avatar} alt="@shadcn" />
+                  <AvatarImage
+                    src={task?.employee.avatar}
+                    alt={task?.employee.name}
+                  />
                   <AvatarFallback>{task?.employee.name[0]}</AvatarFallback>
                 </Avatar>
                 <div className="">
-                  <p className="text-xs text-[#474747]">
+                  <p className="text-xs text-[#474747] dark:text-white">
                     {task?.department.name}
                   </p>
-                  <p className="text-[#0D0F10]">
+                  <p className="text-[#0D0F10] dark:text-white">
                     {task?.employee.name} {task?.employee.surname}
                   </p>
                 </div>
@@ -232,7 +220,7 @@ const InfoTask = () => {
           </div>
         </div>
       </div>
-      <div className="w-[40%] bg-[#F8F3FEA6] p-10 rounded-xl h-[900px] mb-10">
+      <div className="w-[40%] bg-[#F8F3FEA6] p-10 rounded-xl h-[900px] mb-10 dark:bg-gray-950">
         <div className="text-start relative mb-11">
           <Controller
             name="message"

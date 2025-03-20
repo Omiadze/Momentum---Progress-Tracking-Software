@@ -44,6 +44,7 @@ const Modal = () => {
     },
     mode: "onChange",
   });
+
   const nameValue = watch("name");
   const surnameValue = watch("surname");
 
@@ -53,6 +54,7 @@ const Modal = () => {
   });
 
   const [avatar, setAvatar] = useState<File | null>(null);
+
   const { mutate: handleCreateEmployee } = useMutation({
     mutationKey: ["create-task"],
     mutationFn: createEmployee,
@@ -69,22 +71,11 @@ const Modal = () => {
 
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log(file);
+
     if (file) {
       setAvatar(file);
-      console.log(avatar);
     }
   };
-
-  // const getMessageStyle = (fieldName: string) => {
-  //   if (errors[fieldName]) {
-  //     return "text-red-500"; // Error messages
-  //   } else if (touchedFields[fieldName]) {
-  //     return "text-green-600"; // Success messages
-  //   } else {
-  //     return "text-[#6C757D]"; // Default gray for untouched fields
-  //   }
-  // };
 
   return (
     <div>
@@ -115,7 +106,7 @@ const Modal = () => {
               <div
                 className={`flex items-center ${
                   nameValue.length === 0 && !isSubmitted
-                    ? "text-gray-500" // empty field
+                    ? "text-gray-500"
                     : errors.name?.message ===
                         "First name must be at least 2 characters"
                       ? "text-red-500"
@@ -157,7 +148,7 @@ const Modal = () => {
               <div
                 className={`flex items-center ${
                   surnameValue.length === 0 && !isSubmitted
-                    ? "text-gray-500" // empty field
+                    ? "text-gray-500"
                     : errors.surname?.message ===
                         "Last name must be at least 2 characters"
                       ? "text-red-500"
@@ -188,7 +179,7 @@ const Modal = () => {
             {avatar ? (
               <div className="relative">
                 <img
-                  src={URL.createObjectURL(avatar)} // Display the avatar image
+                  src={URL.createObjectURL(avatar)}
                   alt="Avatar"
                   className="w-24 h-24 rounded-full"
                 />
@@ -212,8 +203,8 @@ const Modal = () => {
               id="avatar-upload"
               type="file"
               onChange={handleAvatarChange}
-              className="hidden" // Hide default file input
-              accept="image/*" // Only accept image files
+              className="hidden"
+              accept="image/*"
             />
             {errors.avatar && (
               <div className="text-red-500 text-sm">

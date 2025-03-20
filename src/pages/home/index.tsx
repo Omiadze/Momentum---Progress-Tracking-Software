@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import TaskCard from "./task-card/task-card";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -22,8 +22,11 @@ import {
 import { Department, Employee, Priority } from "@/api/momentum/index.types";
 import { Avatar } from "@radix-ui/react-avatar";
 import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Loading from "../loading";
+import { useSearchParams } from "react-router-dom";
 
 const Home = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const cardBorderColors = {
     დასაწყები: "#F7BC30",
     პროგრესში: "#FB5607",
@@ -45,6 +48,16 @@ const Home = () => {
     queryFn: GetEmployees,
   });
 
+  const { data: statuses } = useQuery({
+    queryKey: ["statuses"],
+    queryFn: GetStatuses,
+  });
+
+  const { data: Tasks, isLoading } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: getAllTasks,
+  });
+
   // Temporary state for selections before applying filters
   const [tempDepartments, setTempDepartments] = useState<string[]>([]);
   const [tempPriorities, setTempPriorities] = useState<string[]>([]);
@@ -59,7 +72,38 @@ const Home = () => {
     setSelectedDepartments(tempDepartments);
     setSelectedPriorities(tempPriorities);
     setSelectedEmployee(tempEmployee);
+
+    setSearchParams({
+      departments: tempDepartments.join(","),
+      priorities: tempPriorities.join(","),
+      employee: tempEmployee || "",
+    });
   };
+
+  useEffect(() => {
+    const paramsDepartments = searchParams.get("departments");
+    const paramsPriorities = searchParams.get("priorities");
+    const paramsEmployee = searchParams.get("employee");
+
+    // Set filters from search params if available
+    if (paramsDepartments) setTempDepartments(paramsDepartments.split(","));
+    if (paramsPriorities) setTempPriorities(paramsPriorities.split(","));
+    if (paramsEmployee) setTempEmployee(paramsEmployee);
+
+    // After setting temp states, apply the filters
+    setSelectedDepartments(tempDepartments);
+    setSelectedPriorities(tempPriorities);
+    setSelectedEmployee(tempEmployee);
+  }, [searchParams]);
+
+  useEffect(() => {
+    // Update search params whenever filters change
+    setSearchParams({
+      departments: selectedDepartments.join(","),
+      priorities: selectedPriorities.join(","),
+      employee: selectedEmployee || "",
+    });
+  }, [selectedDepartments, selectedPriorities, selectedEmployee]);
 
   // Toggle selection function for temp states
   const toggleSelection = (setList: any, item: any) => {
@@ -74,17 +118,17 @@ const Home = () => {
     setSelectedDepartments([]);
     setSelectedPriorities([]);
     setSelectedEmployee(null);
+
+    setTempDepartments([]);
+    setTempPriorities([]);
+    setTempEmployee(null);
+    // Clear the URL search parameters (set empty filters)
+    setSearchParams({
+      departments: "",
+      priorities: "",
+      employee: "",
+    });
   };
-
-  const { data: statuses } = useQuery({
-    queryKey: ["statuses"],
-    queryFn: GetStatuses,
-  });
-
-  const { data: Tasks } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: getAllTasks,
-  });
 
   // Memoized filtered tasks
   const filteredTasks = useMemo(() => {
@@ -105,6 +149,10 @@ const Home = () => {
     });
   }, [Tasks, selectedDepartments, selectedPriorities, selectedEmployee]);
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <div className=" pl-24 pr-24">
       <div>
@@ -113,11 +161,11 @@ const Home = () => {
             დავალებების გვერდი
           </h1>
           <div className="mb-10">
-            <div className="flex border-[0.5px] rounded-sm justify-between mb-2 w-[688px] dark:bg-primary">
+            <div className="flex border-[0.5px] rounded-sm justify-between mb-2 w-[688px] ">
               {/* დეპარტამენტი Multiselect */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="link" className="">
+                  <Button variant="link" className="dark:text-white">
                     დეპარტამენტი
                     <DownArrowSvg />
                   </Button>
@@ -152,7 +200,7 @@ const Home = () => {
               {/* პრიორიტეტი Multiselect */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="link" className="">
+                  <Button variant="link" className="dark:text-white">
                     პრიორიტეტი
                     <DownArrowSvg />
                   </Button>
@@ -187,12 +235,12 @@ const Home = () => {
               {/* თანამშრომელი Singleselect */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="link" className="">
+                  <Button variant="link" className="dark:text-white">
                     თანამშრომელი
                     <DownArrowSvg />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="ml-24 w-[688px] p-4 border-[0.5px] border-primary">
+                <PopoverContent className="ml-24 w-[688px] p-4 border-[0.5px] border-primary h-96 hidden-scrollbar">
                   {employees &&
                     employees?.map((emp: Employee) => (
                       <div
@@ -266,7 +314,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="flex h-[1200px] justify-between flex-wrap overflow-auto scrollbar   ">
+        <div className="flex h-[1200px] justify-between flex-wrap hidden-scrollbar  ">
           <div>
             {statuses && (
               <Button className="w-[381px] h-[54px] bg-[#F7BC30] mb-8">

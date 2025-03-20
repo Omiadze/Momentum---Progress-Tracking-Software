@@ -19,10 +19,10 @@ interface TaskCardProps {
   borderColor: string;
 }
 const departmentColors: { [key: string]: string } = {
-  ადმინისტრაციის: "bg-blue-400",
-  ადამიანური: "bg-green-400",
+  ადმინისტრაციის: "bg-[#89B6FF]",
+  ადამიანური: "bg-[#FF66A8]",
   ფინანსების: "bg-red-400",
-  გაყიდვები: "bg-yellow-400",
+  გაყიდვები: "bg-[#FFD86D]",
   ლოჯოსტიკის: "bg-purple-400",
   ტექნოლოგიების: "bg-teal-400",
   მედიის: "bg-orange-400",
@@ -46,14 +46,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ singleTask, borderColor }) => {
     } else {
       priorityColor = "border-[#FA4D4D] text-[#FA4D4D]";
     }
-    console.log(priorityColor);
 
     return priorityColor;
   };
 
   return (
     <Card
-      className="w-[381px] mb-4 cursor-pointer dark:bg-primary"
+      className="w-[381px] mb-4 cursor-pointer "
       style={{ borderColor, borderWidth: "1px", borderStyle: "solid" }}
       onClick={() =>
         navigate(`/task/${singleTask.id}`, { state: { singleTask } })
@@ -77,11 +76,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ singleTask, borderColor }) => {
           <p className="text-xs">{setDateToConvert(singleTask.due_date)} </p>
         </CardDescription>
       </CardHeader>
-      <CardContent className="text-left">
-        <h1 className="font-medium text-black mb-2 pl-1.5">
+      <CardContent className="text-left ">
+        <h1 className="font-medium text-black mb-2 pl-1.5 dark:text-white">
           {singleTask.name}
         </h1>
-        <p className="font-normal text-[#343A40] text-sm pl-1.5 line-clamp-2">
+        <p className="font-normal text-[#343A40] text-sm pl-1.5 line-clamp-2 dark:text-white">
           {singleTask.description}
         </p>
       </CardContent>
