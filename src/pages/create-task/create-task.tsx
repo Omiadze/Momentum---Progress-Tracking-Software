@@ -38,7 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+
 import { format } from "date-fns";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
@@ -410,17 +410,16 @@ const CreateTask = () => {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={(date) =>
-                            field.onChange(
-                              date ? format(date, "yyyy-MM-dd") : ""
-                            )
-                          }
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
+                        <div className="calendar-container">
+                          {/* Date Picker using input type="date" */}
+                          <input
+                            type="date"
+                            value={field.value}
+                            onChange={(e) => field.onChange(e.target.value)}
+                            min={new Date().toISOString().split("T")[0]} // Disable past dates
+                            className="border p-2 rounded-md"
+                          />
+                        </div>
                       </PopoverContent>
                     </Popover>
                   );
