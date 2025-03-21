@@ -10,7 +10,7 @@ import Logo from "./components/logo";
 const Header = () => {
   const navigate = useNavigate();
   return (
-    <div className="flex justify-between h-28 items-center pl-24 pr-24 ">
+    <div className="flex justify-between h-28 items-center pl-24 pr-24 mb-10">
       <div
         className="flex justify-center items-center cursor-pointer"
         onClick={() => navigate("/home")}

@@ -29,7 +29,6 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Status } from "@/api/momentum/index.types";
 import { setDateToConvert } from "../home/components/date-converter";
-import { queryClient } from "@/main";
 import { toast } from "sonner";
 import Loading from "../loading";
 
@@ -91,7 +90,7 @@ const InfoTask = () => {
     onSuccess: () => {
       refetchTask();
       // Optionally, refetch relevant queries to get the updated task list
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      // queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (err) => {
       console.error("Error updating task:", err);
@@ -246,7 +245,7 @@ const InfoTask = () => {
             )}
           />
         </div>
-        <div className="h-[600px] overflow-auto">
+        <div className="h-[600px] hidden-scrollbar">
           <div className="flex gap-2">
             <h1 className="text-left mb-9 text-xl font-medium">კომენტარები</h1>
             <Button className="w-3 h-6 rounded-full">

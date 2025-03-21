@@ -42,6 +42,8 @@ import {
 import { format } from "date-fns";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
+import { useEffect } from "react";
+import Loading from "../loading";
 
 const CreateTask = () => {
   const {
@@ -51,7 +53,7 @@ const CreateTask = () => {
     formState: { errors, isSubmitted },
   } = useForm({
     resolver: zodResolver(taskSchema),
-    defaultValues: {
+    defaultValues: JSON.parse(localStorage.getItem("formData") || "{}") || {
       name: "",
       description: "",
       priority_id: "",
@@ -68,6 +70,9 @@ const CreateTask = () => {
   const nameValue = watch("name");
   const descriptionValue = watch("description");
   const selectedDepartment = watch("department");
+  const priorityValue = watch("priority_id");
+  const statusValue = watch("status_id");
+  const employeeValue = watch("employee_id");
   const navigate = useNavigate();
 
   const { data: statuses } = useQuery({
@@ -98,13 +103,50 @@ const CreateTask = () => {
     },
   });
 
+  useEffect(() => {
+    const dueDateValue = watch("due_date");
+    // Ensure the due_date is a valid date object or fallback to a valid date
+    const validDueDate = dueDateValue ? new Date(dueDateValue) : new Date();
+
+    // Check if validDueDate is a valid Date object
+    const formattedDueDate =
+      validDueDate instanceof Date && !isNaN(validDueDate.getTime())
+        ? validDueDate.toISOString().split("T")[0] // If valid, format as YYYY-MM-DD
+        : ""; // If invalid, fallback to an empty string or handle accordingly
+
+    const formData = {
+      name: nameValue,
+      description: descriptionValue,
+      priority_id: priorityValue,
+      status_id: statusValue,
+      department: selectedDepartment,
+      employee_id: employeeValue,
+      due_date: formattedDueDate, // Use formatted string for due_date
+    };
+    localStorage.setItem("formData", JSON.stringify(formData));
+  }, [
+    nameValue,
+    descriptionValue,
+    selectedDepartment,
+    statusValue,
+    priorityValue,
+    employeeValue,
+  ]);
+
   const onSubmit = (data: any) => {
-    console.log("Task Created:", data);
     const dataWithoutDepartment = { ...data };
     delete dataWithoutDepartment.department;
-    console.log(dataWithoutDepartment);
+
     handleCreateTask(data);
+    localStorage.removeItem("formData");
   };
+  if (!statuses || !departments || !priorities || !employees) {
+    return (
+      <div>
+        <Loading />
+      </div>
+    );
+  }
 
   return (
     <div className=" h-screen">
@@ -129,8 +171,8 @@ const CreateTask = () => {
                       <div className="text-[#6C757D] text-xs">
                         <div
                           className={`flex items-center ${
-                            nameValue.length === 0 && !isSubmitted
-                              ? "text-gray-500" // empty field
+                            nameValue?.length === 0 && !isSubmitted
+                              ? "text-gray-500"
                               : errors.name?.message ===
                                   "Title must be at least 3 characters"
                                 ? "text-red-500"
@@ -142,8 +184,8 @@ const CreateTask = () => {
                         </div>
                         <div
                           className={`flex items-center ${
-                            nameValue.length === 0 && !isSubmitted
-                              ? "text-gray-500" // empty field
+                            nameValue?.length === 0 && !isSubmitted
+                              ? "text-gray-500"
                               : errors.name?.message ===
                                   "Title must be at most 255 characters"
                                 ? "text-red-500"
@@ -172,7 +214,7 @@ const CreateTask = () => {
                         <div
                           className={`flex items-center ${
                             descriptionValue?.length === 0 && !isSubmitted
-                              ? "text-gray-500" // empty field
+                              ? "text-gray-500"
                               : errors.name?.message ===
                                   "Description must be at most 255 characters"
                                 ? "text-red-500"
@@ -184,7 +226,7 @@ const CreateTask = () => {
                         <div
                           className={`flex items-center ${
                             descriptionValue?.length === 0 && !isSubmitted
-                              ? "text-gray-500" // empty field
+                              ? "text-gray-500"
                               : errors.name?.message ===
                                   "Description must be at least 4 words if provided"
                                 ? "text-red-500"
@@ -242,7 +284,10 @@ const CreateTask = () => {
                   )}
                 />
                 <p className="text-red-500 text-left">
-                  {errors.priority_id?.message}
+                  {errors.priority_id?.message &&
+                  typeof errors.priority_id?.message === "string"
+                    ? errors.priority_id.message
+                    : null}
                 </p>
               </div>
 
@@ -282,7 +327,10 @@ const CreateTask = () => {
                   )}
                 />
                 <p className="text-red-500 text-left">
-                  {errors.status_id?.message}
+                  {errors.status_id?.message &&
+                  typeof errors.status_id?.message === "string"
+                    ? errors.status_id.message
+                    : null}
                 </p>
               </div>
             </div>
@@ -318,7 +366,10 @@ const CreateTask = () => {
                 )}
               />
               <p className="text-red-500 text-left">
-                {errors.department?.message}
+                {errors.department?.message &&
+                typeof errors.department?.message === "string"
+                  ? errors.department.message
+                  : null}
               </p>
             </div>
 
@@ -380,7 +431,10 @@ const CreateTask = () => {
                 )}
               />
               <p className="text-red-500 text-left">
-                {errors.employee_id?.message}
+                {errors.employee_id?.message &&
+                typeof errors.employee_id?.message === "string"
+                  ? errors.employee_id.message
+                  : null}
               </p>
             </div>
 
@@ -390,34 +444,33 @@ const CreateTask = () => {
                 name="due_date"
                 control={control}
                 render={({ field }) => {
-                  const selectedDate = field.value
-                    ? new Date(field.value)
-                    : undefined;
-
                   return (
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           className={`w-[318px] justify-start text-left pl-7 ${
-                            !selectedDate && "text-muted-foreground"
+                            !field.value && "text-muted-foreground"
                           }`}
                         >
                           <DatePickerSvg />
-                          {selectedDate
-                            ? format(selectedDate, "yyyy-MM-dd")
+                          {field.value
+                            ? format(new Date(field.value), "yyyy-MM-dd")
                             : "აირჩიე თარიღი"}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
+                      <PopoverContent className="w-auto p-4">
                         <div className="calendar-container">
-                          {/* Date Picker using input type="date" */}
+                          <label htmlFor="task-date" className="sr-only">
+                            აირჩიე თარიღი
+                          </label>
                           <input
+                            id="task-date"
                             type="date"
-                            value={field.value}
+                            value={field.value || ""}
                             onChange={(e) => field.onChange(e.target.value)}
-                            min={new Date().toISOString().split("T")[0]} // Disable past dates
-                            className="border p-2 rounded-md"
+                            min={new Date().toISOString().split("T")[0]}
+                            className="border p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition"
                           />
                         </div>
                       </PopoverContent>
@@ -426,7 +479,10 @@ const CreateTask = () => {
                 }}
               />
               <p className="text-red-500 text-left">
-                {errors.due_date?.message}
+                {errors.due_date?.message &&
+                typeof errors.due_date?.message === "string"
+                  ? errors.due_date.message
+                  : null}
               </p>
             </div>
           </div>

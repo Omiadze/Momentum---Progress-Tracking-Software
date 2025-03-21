@@ -26,6 +26,11 @@ import Loading from "../loading";
 import { useSearchParams } from "react-router-dom";
 
 const Home = () => {
+  const [activePopover, setActivePopover] = useState<string | null>(null);
+
+  const handlePopoverClick = (popoverName: string) => {
+    setActivePopover((prev) => (prev === popoverName ? null : popoverName)); // Toggle popover active state
+  };
   const [searchParams, setSearchParams] = useSearchParams();
   const cardBorderColors = {
     დასაწყები: "#F7BC30",
@@ -161,18 +166,25 @@ const Home = () => {
             დავალებების გვერდი
           </h1>
           <div className="mb-10">
-            <div className="flex border-[0.5px] rounded-sm justify-between mb-2 w-[688px] ">
+            <div className="flex border-[0.5px] rounded-sm justify-between mb-2 w-[688px]">
               {/* დეპარტამენტი Multiselect */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="link" className="dark:text-white">
+                  <Button
+                    variant="link"
+                    className={cn(
+                      "dark:text-white",
+                      activePopover === "department" && "text-primary" // Apply active color
+                    )}
+                    onClick={() => handlePopoverClick("department")}
+                  >
                     დეპარტამენტი
                     <DownArrowSvg />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="ml-24 w-[688px] border-[0.5px] border-primary">
                   {departments &&
-                    departments?.map((dep: Department) => (
+                    departments.map((dep: Department) => (
                       <div
                         key={dep.id}
                         className="flex items-center space-x-4 mb-4"
@@ -197,17 +209,24 @@ const Home = () => {
                 </PopoverContent>
               </Popover>
 
-              {/* პრიორიტეტი Multiselect */}
+              {/* Similar for other popovers */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="link" className="dark:text-white">
+                  <Button
+                    variant="link"
+                    className={cn(
+                      "dark:text-white",
+                      activePopover === "priority" && "text-primary"
+                    )}
+                    onClick={() => handlePopoverClick("priority")}
+                  >
                     პრიორიტეტი
                     <DownArrowSvg />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className=" p-4 ml-24 w-[688px] border-[0.5px] border-primary">
                   {priorities &&
-                    priorities?.map((priority: Priority) => (
+                    priorities.map((priority: Priority) => (
                       <div
                         key={priority.id}
                         className="flex items-center space-x-2"
@@ -232,17 +251,23 @@ const Home = () => {
                 </PopoverContent>
               </Popover>
 
-              {/* თანამშრომელი Singleselect */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="link" className="dark:text-white">
+                  <Button
+                    variant="link"
+                    className={cn(
+                      "dark:text-white",
+                      activePopover === "employee" && "text-primary"
+                    )}
+                    onClick={() => handlePopoverClick("employee")}
+                  >
                     თანამშრომელი
                     <DownArrowSvg />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="ml-24 w-[688px] p-4 border-[0.5px] border-primary h-96 hidden-scrollbar">
                   {employees &&
-                    employees?.map((emp: Employee) => (
+                    employees.map((emp: Employee) => (
                       <div
                         key={emp.id}
                         className={cn(

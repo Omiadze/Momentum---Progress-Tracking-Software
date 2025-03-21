@@ -27,6 +27,7 @@ import PhotoUploaderSvg from "../photo-uploader-svg";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createEmployee, GetDepartments } from "@/api/momentum";
 import { Department } from "@/api/momentum/index.types";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const Modal = () => {
   const {
@@ -34,6 +35,7 @@ const Modal = () => {
     handleSubmit,
     formState: { errors, isSubmitted },
     watch,
+    reset,
   } = useForm({
     resolver: zodResolver(modalSchema),
     defaultValues: {
@@ -178,11 +180,13 @@ const Modal = () => {
           <div className="border-dashed border-2 p-4 flex justify-center items-center relative rounded-sm">
             {avatar ? (
               <div className="relative">
-                <img
-                  src={URL.createObjectURL(avatar)}
-                  alt="Avatar"
-                  className="w-24 h-24 rounded-full"
-                />
+                <Avatar className="w-24 h-24 rounded-full">
+                  <AvatarImage
+                    src={URL.createObjectURL(avatar)}
+                    alt="Avatar"
+                    className="w-24 h-24 rounded-full "
+                  />
+                </Avatar>
                 <button
                   onClick={() => setAvatar(null)}
                   className="absolute bottom-0 -right-1.5 p-1 rounded-full cursor-pointer"
@@ -254,6 +258,9 @@ const Modal = () => {
             <Button
               variant={"ghost"}
               className="border-2 border-primary cursor-pointer"
+              onClick={() => {
+                reset();
+              }}
             >
               გაუქმება
             </Button>
